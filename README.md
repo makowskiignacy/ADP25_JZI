@@ -21,7 +21,7 @@ The aim of this project is to develop and benchmark methods for searching large 
 ### Goal
 Create fast search engine for organic molecules.
 
-### Team Structure (4 Members)
+### Team Tasks
 Take one clustering method and test it on chembl: Deep clustering of small molecules
 at large‑scale via variational autoencoder
 embedding and K‑means.
