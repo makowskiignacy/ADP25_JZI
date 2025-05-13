@@ -16,7 +16,7 @@ The aim of this project is to develop and benchmark methods for searching large 
 
 ---
 
-## Proposed First Round
+## First Round
 
 ### Goal
 Create fast search engine for organic molecules.
@@ -34,9 +34,3 @@ embedding and K‑means.
 
 
 ---
-
-## Notes
-
-- Use `psutil` or `memory_profiler` to measure memory usage.
-- Prefer using `tqdm` or `timeit` for progress and timing.
-- If performance is low, consider evaluating only a portion of the similarity matrix (e.g., top-k).
