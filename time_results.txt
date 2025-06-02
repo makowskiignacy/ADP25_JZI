@@ -1,0 +1,72 @@
+Loading first 100 SMILES from chembl_35_chemreps.txt...
+Loaded 100 SMILES strings.
+
+--- Running HDBSCANSearch ---
+Clustering compounds with HDBSCANSearch...
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+HDBSCANSearch clustering completed in 0.04 seconds.
+Found 1 HDBSCAN clusters and 64 noise points (treated as singletons). Total entries: 65
+HDBSCANSearch clusters saved to clusters_output_hdbscan.json
+
+Searching with HDBSCANSearch for 5 most similar compounds to: O=C(Nc1ccc(F)cc1)c1nnc(SCC(=O)Nc2ccccc2)o1...
+HDBSCANSearch search completed in 0.0213 seconds.
+
+Top 5 similar compounds found by HDBSCANSearch:
+1. SMILES: Cl.O=C(Nc1ccc2c(c1)c1ccccc1n2CCCCN1CCN(C/C=C/c2ccccc2)CC1)c1ccccc1..., Similarity: 0.2099
+2. SMILES: Cc1cc(NC(=O)c2cc(Cl)cc(Cl)c2O)ccc1Sc1nc2ccccc2s1..., Similarity: 0.1975
+3. SMILES: O=S(=O)(CCO)c1no[n+]([O-])c1-c1ccccc1..., Similarity: 0.1970
+4. SMILES: COc1ccccc1N1CCN(CCCNC(=O)c2ccccc2I)CC1.O=C(O)C(=O)O..., Similarity: 0.1899
+5. SMILES: O=C(Nc1ncc(F)s1)[C@H](CC1CCOCC1)c1ccc(S(=O)(=O)C2CC2)cc1..., Similarity: 0.1829
+
+###################################################################################################
+
+Loading first 1000 SMILES from chembl_35_chemreps.txt...
+Loaded 1000 SMILES strings.
+
+--- Running HDBSCANSearch ---
+Clustering compounds with HDBSCANSearch...
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+HDBSCANSearch clustering completed in 0.59 seconds.
+Found 1 HDBSCAN clusters and 529 noise points (treated as singletons). Total entries: 530
+HDBSCANSearch clusters saved to clusters_output_hdbscan.json
+
+Searching with HDBSCANSearch for 5 most similar compounds to: O=C(Nc1ccc(F)cc1)c1nnc(SCC(=O)Nc2ccccc2)o1...
+HDBSCANSearch search completed in 0.2068 seconds.
+
+Top 5 similar compounds found by HDBSCANSearch:
+1. SMILES: Cn1c(CSCC(=O)Nc2ccccc2)nnc1SCC(=O)Nc1ccccc1..., Similarity: 0.4068
+2. SMILES: Nc1nc(N)nc(SCC(=O)NCc2ccc(F)cc2)n1..., Similarity: 0.3115
+3. SMILES: O=C(Nc1ccc(F)cc1)c1cnc(N2CCN(c3ccncc3)CC2)c(Cl)c1.O=C(O)C(F)(F)F..., Similarity: 0.2763
+4. SMILES: O=C(Nc1cccc(OC(F)F)c1)c1ccccn1..., Similarity: 0.2698
+5. SMILES: O=C(Cc1ccccc1)Nc1cccc(C(=O)/C=C(\O)C(=O)O)c1..., Similarity: 0.2500
+
+###################################################################################################
+
+Loading first 10000 SMILES from chembl_35_chemreps.txt...
+Loaded 10000 SMILES strings.
+
+--- Running HDBSCANSearch ---
+Clustering compounds with HDBSCANSearch...
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+/Users/ignacy/Desktop/BIOINF-M1/ADP/ADP25_JZI/.venv/lib/python3.13/site-packages/sklearn/utils/deprecation.py:151: FutureWarning: 'force_all_finite' was renamed to 'ensure_all_finite' in 1.6 and will be removed in 1.8.
+  warnings.warn(
+HDBSCANSearch clustering completed in 36.15 seconds.
+Found 346 HDBSCAN clusters and 4739 noise points (treated as singletons). Total entries: 5085
+HDBSCANSearch clusters saved to clusters_output_hdbscan.json
+
+Searching with HDBSCANSearch for 5 most similar compounds to: O=C(Nc1ccc(F)cc1)c1nnc(SCC(=O)Nc2ccccc2)o1...
+HDBSCANSearch search completed in 1.4171 seconds.
+
+Top 5 similar compounds found by HDBSCANSearch:
+1. SMILES: Cn1c(CSCC(=O)Nc2ccccc2)nnc1SCC(=O)Nc1ccccc1..., Similarity: 0.4068
+2. SMILES: Cl.N=C(N)Nc1ccc(C(=O)Nc2ccccc2)cc1..., Similarity: 0.3585
+3. SMILES: CCc1cccc(C)c1NC(=O)CSc1nnc2ccc(C(=O)Nc3cccc(F)c3)cn12..., Similarity: 0.3377
+4. SMILES: O=C(CCCCCCC(=O)Nc1ccccc1)NO..., Similarity: 0.3208
+5. SMILES: Nc1nc(N)nc(SCC(=O)NCc2ccc(F)cc2)n1..., Similarity: 0.3115
