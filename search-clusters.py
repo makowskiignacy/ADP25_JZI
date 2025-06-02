@@ -1,4 +1,4 @@
-#some random clasters to check if functions work
+from abc import ABC, abstractmethod
 
 claster0 = {'c' : 1,
            'b' : 2,
@@ -29,9 +29,19 @@ claster2 = {'h' : claster1,
             'i' : claster1}
 
 
+class CompoundSearch(ABC):
+    @abstractmethod
+    def similarity(self, compound1: str, compound2: str) -> float:
+        pass
+
+    @abstractmethod
+    def cluster(self, compounds: list[str]) -> dict[str, dict[str]]:
+        pass
+
 # function to sort cluster alphabeticly by key
 def similarity1(compound1, compound2):
     return ord(compound1)
+
 
 #creates a lists of keys and clasters for sorting by key
 def dict_to_list(dict):
