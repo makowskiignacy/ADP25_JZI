@@ -65,6 +65,77 @@ class ClusteringAlgorithm(ABC):
         pass
 
 # --- Concrete Distance Metrics ---
+
+# Hierarchical K-Medoids Clustering
+class HierarchicalKMedoids:
+
+
+    def __init__(self, smiles, distance_metric: DistanceMetric, num_clusters: int):
+        fps = []
+        for smi in smiles:
+            mol = Chem.MolFromSmiles(smi)
+            if mol is None:
+               raise ValueError(f"Invalid SMILES: {smi}")
+            fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+            fps.append(fp)
+        fps = np.array(fps)
+        self.fingerprints = fps
+        self.smiles = smiles
+        self.distance_metric = distance_metric
+        self.num_clusters = num_clusters
+        self.medoids = []
+
+
+
+    def _compute_distance_matrix(self):
+        n = len(self.fingerprints)
+        dist_matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                dist = self.distance_metric.calculate_distance(self.fingerprints[i], self.fingerprints[j])
+                dist_matrix[i][j] = dist_matrix[j][i] = dist
+        return dist_matrix
+
+    def _find_medoids(self, clusters):
+        medoids = []
+        for cluster_id in np.unique(clusters):
+            indices = np.where(clusters == cluster_id)[0]
+            submatrix = np.array([[self.distance_metric.calculate_distance(self.fingerprints[i], self.fingerprints[j])
+                                   for j in indices] for i in indices])
+            medoid_index = indices[np.argmin(np.sum(submatrix, axis=1))]
+            medoids.append(medoid_index)
+        return medoids
+
+    def fit(self):
+      from scipy.cluster.hierarchy import linkage, fcluster
+      dist_matrix = self._compute_distance_matrix()
+      linkage_matrix = linkage(dist_matrix, method='average')
+      clusters = fcluster(linkage_matrix, self.num_clusters, criterion='maxclust')
+      self.medoids = self._find_medoids(clusters)
+
+      # Map clusters to medoid SMILES and members
+      result = {}
+      for medoid_idx in self.medoids:
+          medoid_smiles = self.smiles[medoid_idx]
+          result[medoid_smiles] = []
+
+      for idx, cluster_id in enumerate(clusters):
+          for medoid_idx in self.medoids:
+              # Assign compound to the correct medoid's cluster
+              if clusters[medoid_idx] == cluster_id:
+                  result[self.smiles[medoid_idx]].append(self.smiles[idx])
+                  break
+      for key in result:
+        if len(result[key]) == 1:
+          result[key] = {}
+        else:
+          distance = TanimotoDistance()
+          hkmedoids = HierarchicalKMedoids(result[key], self.distance_metric, self.num_clusters)
+          result[key] = hkmedoids.fit()
+
+      return result
+
+
 class TanimotoDistance(DistanceMetric):
     def calculate_distance(self, fp1, fp2) -> float:
         # RDKit's TanimotoSimilarity expects RDKit fingerprint objects
@@ -525,3 +596,9 @@ CHEMBL22\tCOc1cc(OC)c(C=O)c(OC)c1\tInChI=1S/C10H12O4/c1-11-7-5-6(4-14)8(12-2)10(
     
     print("\nTo view plots, uncomment plt.savefig lines and run the script, or use a Jupyter environment to display them directly.")
     # plt.show() # In a script, this might block; better to save files or use in interactive env.
+
+    # Clastering using Hierarchical K Medoids metod 
+    distance = TanimotoDistance()
+    cluster = HierarchicalKMedoids(all_smiles, distance, num_clusters=3).fit()
+    # Printing clastered smiles
+    #print("Cluster assignments:", cluster)
