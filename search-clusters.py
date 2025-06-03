@@ -446,8 +446,8 @@ def dict_to_list(dict):
 
 #gets n most similar compunds to given compunds with given similarity function
 def get_similar_compounds(compound, claster, similarity_func, n):
-    if False == isinstance(claster,dict):
-        return [claster]
+    if False == bool(claster):
+        return []
     claster_list = dict_to_list(claster)
     def sorting_func(a):
         return similarity_func(a['key'], compound)
@@ -456,6 +456,8 @@ def get_similar_compounds(compound, claster, similarity_func, n):
     compound_list = []
     for i in claster_list:
         new_compounds = get_similar_compounds(compound, i['claster'], similarity_func, n_remain)
+        if len(new_compounds) == 0:
+            new_compounds = i['key']
         n_remain -= len(new_compounds)
         compound_list += new_compounds
         if n_remain<=0:
