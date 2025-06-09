@@ -143,32 +143,58 @@ python hierarchical_cluster.py zinc_smiles.txt <output_dir>
 4. Recursively runs FAISS K-means on sub-chunks from the memmap
 5. Saves assignments, computes centroids
 
+---
+
 ## Analog Retrieval with `search_analogs.py`
 
 Retrieve top-K nearest neighbors by combining FAISS and exact Tanimoto:
 
 ```bash
-python search_analogs.py <cluster_dir> <query_smiles> [--top_k 10]
+python search_analogs.py <cluster_dir> <output_dir> <query_smiles> [--top_k 5]
 ```
 
-* `<cluster_dir>`: output directory from `hierarchical_cluster.py`
+* `<cluster_dir>`: directory produced by `cluster_build.py` containing
+  `processed.csv`, `fp_matrix.dat`, `clusters.json` and `centroids.npy`
+* `<output_dir>`: directory where `analogs.png` and `analog_results.csv` will be saved
 * `<query_smiles>`: SMILES string to query (e.g. `CCO`)
-* `--top_k`: number of analogs to return (default 5)
+* `--top_k`: number of analogs to return (default: 5)
 
 **Workflow:**
 
-1. Loads `processed.csv`, `clusters.json`, `centroids.npy`.
-2. Converts query SMILES to 1024-bit Morgan fingerprint & float32 vector.
-3. Selects clusters by L2 distance to centroids until \~50 candidates collected.
-4. Runs FAISS L2 search on candidate float vectors.
-5. Computes bitwise Tanimoto similarity for top hits, sorts, and prints top K:
+1. **Load data**
+   Reads
 
-```
-1. SMILES: ..., ZINC_ID: ..., Tanimoto = 0.XXXX
-2. …
-```
+   * `processed.csv` (with SMILES & ZINC IDs)
+   * `fp_matrix.dat` (float32 fingerprint memmap)
+   * `clusters.json` (mapping of centroid → member indices)
+   * `centroids.npy` (centroid float vectors)
 
----
+2. **Fingerprint query**
+   Converts your SMILES into
+
+   * a 1024-bit Morgan fingerprint (radius = 2)
+   * a corresponding `float32` array for FAISS
+
+3. **Cluster selection**
+   Computes L2 distances between the query array and each centroid, then accumulates members of the closest clusters until ≥ 50 candidates are gathered.
+
+4. **FAISS search**
+   Builds an `IndexFlatL2` over the candidate float vectors and retrieves up to 50 nearest by L2 distance.
+
+5. **Exact scoring**
+   For each FAISS hit:
+
+   * Re-generate the bit-vector Morgan fingerprint
+   * Compute **Tanimoto** and **Cosine** similarities
+   * Sort by Tanimoto, take the top K
+
+6. **Output**
+
+   * Prints the top K SMILES/ZINC IDs with their Tanimoto & Cosine scores
+   * Saves a grid image of the top K molecules (`analogs.png`) in `<output_dir>`
+   * Writes a summary CSV (`analog_results.csv`) with SMILES, ZINC\_ID, tanimoto, cosine
+
+
 
 **Precomputed Clustering:**  
 If you want to search against a precomputed clustering (based on ~1 million compounds), the results are available here:  
