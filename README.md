@@ -85,18 +85,18 @@ python3 extract_zinc_smiles.py \
 ```
 
 * `--input-dir`: root directory with subfolders (A/, B/, …)
-* `--output-file`: path for the output TSV (default `zinc_smiles.txt`)
+* `--output-file`: path for the output txt (default `zinc_smiles.txt`)
 
 **Output format (`zinc_smiles.txt`):**
 
 ```
-<SMILES_string>\t<ZINC_ID>
+<SMILES_string> <ZINC_ID>
 ```
 
 Example:
 
 ```
-O=C(CN1CCN(CC(=O)NC2CC2)CC1)Nc1cccc(S(=O)(=O)/N=C2/CCCN2)c1\t23300202
+O=C(CN1CCN(CC(=O)NC2CC2)CC1)Nc1cccc(S(=O)(=O)/N=C2/CCCN2)c1 23300202
 ```
 
 ## Directory Structure
