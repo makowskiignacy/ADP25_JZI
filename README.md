@@ -116,10 +116,6 @@ After downloading and extraction, your project tree should look like:
 
 ## Clustering Pipeline
 
-### Compute Properties & Binning
-
-1. **(Optional)** Compute or parse physicochemical properties (MW, log P) for each SMILES.
-2. **Filter** compounds into user-defined bins, e.g. MW 200–300 Da, log P 1.0–2.0.
 
 ### Hierarchical On-Disk Clustering
 
