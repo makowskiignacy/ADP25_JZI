@@ -174,7 +174,7 @@ python search_analogs.py <cluster_dir> <query_smiles> [--top_k 10]
 
 * **Please cite:**
 
-  * Irwin, J. J., Sterling, T., Mysinger, M. M., Bolstad, E. S., & Coleman, R. G. (2012). ZINC: A free tool to discover chemistry for biology. *Journal of Chemical Information and Modeling*, **52**(7), 1757–1768.
+  * Szkóp, J., Milczarska, Z., Makowski, I., & Kobieta, R. (2025). ChemClusterPL: ZINC Tranche Clustering & Hierarchical SMILES Clustering Workflow (Version 1.0.0) [Computer software]. GitHub. https://github.com/makowskiignacy/ChemClusterPL (Accessed June 9, 2025)
   * Any downstream tools e.g. RDKit, FAISS
 
 ---
