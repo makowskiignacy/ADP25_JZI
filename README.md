@@ -1,173 +1,186 @@
-<!-- README.md for ZINC Tranche Clustering Workflow -->
+## ZINC Tranche Clustering & Hierarchical SMILES Clustering Workflow
+
+A comprehensive pipeline for downloading, extracting, clustering, and querying compounds from the ZINC database. This README integrates:
+
+* **ZINC Tranche Download & SMILES Extraction**
+* **On-Disk Hierarchical Clustering**
+* **Fast Analog Retrieval (search\_analogs.py)**
+
+---
+
+### Table of Contents
+
+1. [Overview](#overview)
+2. [Background](#background)
+3. [Prerequisites](#prerequisites)
+4. [Downloading ZINC Tranches](#downloading-zinc-tranches)
+5. [Extracting SMILES & ZINC IDs](#extracting-smiles--zinc-ids)
+6. [Directory Structure](#directory-structure)
+7. [Clustering Pipeline](#clustering-pipeline)
+
+   * [Compute Properties & Binning](#compute-properties--binning)
+   * [Hierarchical On-Disk Clustering](#hierarchical-on-disk-clustering)
+8. [Analog Retrieval with `search_analogs.py`](#analog-retrieval-with-search_analogspy)
+9. [License & Citation](#license--citation)
+
+---
 
 ## Overview
 
-This repository provides a streamlined workflow for the quantitative screening and clustering of chemical compounds from the ZINC database. By leveraging predefined molecular weight and log P ranges, users can generate coherent clusters of compounds exhibiting comparable physicochemical properties. The clustering strategy is particularly useful for virtual screening campaigns, lead identification, and scaffold‐hopping initiatives.
+This workflow streamlines the quantitative screening of commercially available compounds from the ZINC database by:
 
-Specifically, this README describes how to apply the clustering pipeline to additional ZINC tranches, including:
+* Downloading user-selected tranches of 2D structures
+* Extracting SMILES and ZINC identifiers
+* Clustering compounds into physicochemical bins and creating hierarchical clusters at scale
+* Providing a fast analog search tool to retrieve closest neighbors by Tanimoto similarity
 
-1. Downloading selected tranches.
-2. Extracting SMILES strings and ZINC identifiers using a dedicated Python script.
-3. Preparing the final `zinc_smiles.txt` file for downstream clustering.
-
----
-
-## Table of Contents
-
-1. [Background](#background)
-2. [Prerequisites](#prerequisites)
-3. [Downloading ZINC Tranches](#downloading-zinc-tranches)
-4. [Extracting SMILES and ZINC IDs](#extracting-smiles-and-zinc-ids)
-5. [File Structure](#file-structure)
-6. [Clustering Workflow (Summary)](#clustering-workflow-summary)
-7. [License and Citation](#license-and-citation)
-
----
+It is designed for virtual screening campaigns, lead identification, scaffold hopping, and similarity searching in large libraries.
 
 ## Background
 
-The ZINC database ([http://zinc.docking.org](http://zinc.docking.org)) is a freely accessible repository of commercially available compounds. It allows filtering by:
+**ZINC** ([zinc.docking.org](http://zinc.docking.org)) is a freely accessible repository of purchasable compounds. It supports filtering by reactivity, purchasability, and properties such as molecular weight and log P.
 
-* **Reactivity** (e.g., functional group filters or pan-assay interference compound (PAINS) filters)
-* **Purchasability** (i.e., whether a compound is available for purchase)
-* **Physicochemical properties** such as molecular weight and log P
-
-In our clustering approach, compounds are grouped based on user‐defined intervals of:
-
-* **Molecular weight**
-* **log P**
-
-This ensures that each cluster contains compounds with similar size and lipophilicity, thereby improving the consistency of subsequent virtual screening or structure‐activity relationship analyses.
-
----
+Our workflow groups compounds first by user-defined physicochemical bins (e.g., MW, log P) and then applies on-disk hierarchical clustering using FAISS to handle millions of molecules without excessive RAM usage.
 
 ## Prerequisites
 
-Before running the workflow below, ensure that you have the following installed on your local machine:
+* **Unix-like OS** (Linux or macOS recommended)
+* **Python 3.7+**
+* **RDKit** (for molecular processing)
+* **FAISS (cpu)** (for scalable clustering)
+* **NumPy**
+* **Pandas**
 
-* **Unix‐like operating system** (Linux or macOS recommended)
-* **Python 3.7+** (with standard libraries such as `argparse`, `csv`)
-* **Bash shell** (for invoking the `.wget` script)
-* **`extract_zinc_smiles.py`** script (included in this repository; see Section 4)
+Install Python dependencies with:
 
-> **Note:** The Python script `extract_zinc_smiles.py` is designed to parse each ZINC tranche’s text files and produce a single tab‐delimited file containing SMILES strings and corresponding ZINC IDs.
-
----
+```bash
+pip install numpy pandas faiss-cpu
+# RDKit installation varies by platform; see https://www.rdkit.org/docs/Install.html
+```
 
 ## Downloading ZINC Tranches
 
-1. **Obtain the `.wget` script**
+1. **Obtain the downloader script**
 
-   * After selecting the desired ZINC tranche(s) from the ZINC website, you will receive a file named:
+   * From the ZINC website, select desired tranche(s) and download `ZINC-downloader-2D-txt.wget`.
+   * Place it in your working directory.
 
-     ```
-     ZINC-downloader-2D-txt.wget
-     ```
-   * Place this file into the directory where you plan to download the tranche data.
-
-2. **Make the script executable**
+2. **Make it executable & run**
 
    ```bash
    chmod +x ZINC-downloader-2D-txt.wget
-   ```
-
-3. **Run the downloader**
-
-   ```bash
    ./ZINC-downloader-2D-txt.wget
    ```
 
-   * This command will download all subfolders for the chosen tranche(s). The resulting directory structure will be organized alphabetically (e.g., folders named `A/`, `B/`, …, `Z/`), and each folder will contain multiple text files with SMILES and additional metadata.
+   This creates folders `A/`, `B/`, …, `Z/`, each containing tab-delimited text files with SMILES and metadata.
 
----
+## Extracting SMILES & ZINC IDs
 
-## Extracting SMILES and ZINC IDs
+Use the provided Python script to consolidate SMILES and IDs:
 
-To prepare a consolidated list of SMILES strings and ZINC identifiers for clustering, execute the following steps:
+```bash
+python3 extract_zinc_smiles.py \
+  --input-dir path/to/downloaded/tranche \
+  --output-file zinc_smiles.txt
+```
 
-1. **Ensure the Python script is available**
+* `--input-dir`: root directory with subfolders (A/, B/, …)
+* `--output-file`: path for the output TSV (default `zinc_smiles.txt`)
 
-   * The script `extract_zinc_smiles.py` should be located in the same directory where you ran the downloader, or you can provide its absolute path when invoking it.
+**Output format (`zinc_smiles.txt`):**
 
-2. **Run the extraction script**
+```
+<SMILES_string>\t<ZINC_ID>
+```
 
-   ```bash
-   python3 extract_zinc_smiles.py \
-     --input-dir path/to/downloaded/tranche \
-     --output-file zinc_smiles.txt
-   ```
+Example:
 
-   * **Arguments:**
+```
+O=C(CN1CCN(CC(=O)NC2CC2)CC1)Nc1cccc(S(=O)(=O)/N=C2/CCCN2)c1\t23300202
+```
 
-     * `--input-dir`: Path to the root directory containing the alphabetically grouped subfolders (e.g., `A/`, `B/`, …).
-     * `--output-file`: Desired name and location of the consolidated output file. By default, this will be named `zinc_smiles.txt`.
+## Directory Structure
 
-3. **Resulting `zinc_smiles.txt` format**
-   Each line in `zinc_smiles.txt` will consist of two columns separated by a tab character:
-
-   ```
-   <SMILES_string>    <ZINC_ID>
-   ```
-
-   Example:
-
-   ```
-   O=C(CN1CCN(CC(=O)NC2CC2)CC1)Nc1cccc(S(=O)(=O)/N=C2/CCCN2)c1    23300202
-   Cc1ccc(S(=O)(=O)OC[C@@H](OS(=O)(=O)c2ccc(C)cc2)[C@H](O)[C@H](O)[C@H](O)CO)cc1    104182481
-   ```
-
----
-
-## File Structure
-
-After completing the steps in Sections 3 and 4, your directory will resemble the following:
+After downloading and extraction, your project tree should look like:
 
 ```
 .
 ├── ZINC-downloader-2D-txt.wget
 ├── extract_zinc_smiles.py
-├── zing_smiles_pipeline/         ← (Optional) your working directory
-│   ├── A/                        ← Alphabetical subfolder (contains multiple .txt files)
-│   ├── B/                        ← Alphabetical subfolder
-│   ├── …
-│   └── Z/                        ← Alphabetical subfolder
-└── zinc_smiles.txt              ← Consolidated SMILES ↔ ZINC_ID file
+├── zinc_smiles.txt
+└── <optional_workdir>/
+    ├── A/
+    ├── B/
+    └── …
 ```
 
-* **`A/`, `B/`, …, `Z/`**
-  Each alphabetical subfolder contains multiple tab‐delimited text files. These files include SMILES, compound metadata (e.g., molecular weight, log P, vendor information), and other identifiers.
+## Clustering Pipeline
 
-* **`extract_zinc_smiles.py`**
-  A Python script to parse each text file recursively and write out only the SMILES string and ZINC ID to `zinc_smiles.txt`.
+### Compute Properties & Binning
 
-* **`zinc_smiles.txt`**
-  The final output used for clustering. Each row has the format `<SMILES>\t<ZINC_ID>`.
+1. **(Optional)** Compute or parse physicochemical properties (MW, log P) for each SMILES.
+2. **Filter** compounds into user-defined bins, e.g. MW 200–300 Da, log P 1.0–2.0.
+
+### Hierarchical On-Disk Clustering
+
+Use `hierarchical_cluster.py` to build scalable clusters:
+
+```bash
+python hierarchical_cluster.py zinc_smiles.txt <output_dir>
+```
+
+* **Inputs:**
+
+  * `zinc_smiles.txt` (TSV with header `smiles    zinc_id`)
+* **Outputs in `<output_dir>`:**
+
+  * `fp_matrix.dat`: memmapped float32 fingerprint matrix (N × 1024)
+  * `clusters.json`: mapping cluster IDs → list of record indices
+  * `centroids.npy`: cluster centroid vectors
+  * `processed.csv`: table of valid SMILES & ZINC IDs
+
+**Process:**
+
+1. Reads & filters invalid SMILES
+2. Generates 1024-bit Morgan fingerprints (radius = 2) in chunks to a NumPy memmap
+3. Determines cluster hierarchy (√N clusters, log₂ levels)
+4. Recursively runs FAISS K-means on sub-chunks from the memmap
+5. Saves assignments, computes centroids
+
+## Analog Retrieval with `search_analogs.py`
+
+Retrieve top-K nearest neighbors by combining FAISS and exact Tanimoto:
+
+```bash
+python search_analogs.py <cluster_dir> <query_smiles> [--top_k 10]
+```
+
+* `<cluster_dir>`: output directory from `hierarchical_cluster.py`
+* `<query_smiles>`: SMILES string to query (e.g. `CCO`)
+* `--top_k`: number of analogs to return (default 5)
+
+**Workflow:**
+
+1. Loads `processed.csv`, `clusters.json`, `centroids.npy`.
+2. Converts query SMILES to 1024-bit Morgan fingerprint & float32 vector.
+3. Selects clusters by L2 distance to centroids until \~50 candidates collected.
+4. Runs FAISS L2 search on candidate float vectors.
+5. Computes bitwise Tanimoto similarity for top hits, sorts, and prints top K:
+
+```
+1. SMILES: ..., ZINC_ID: ..., Tanimoto = 0.XXXX
+2. …
+```
+
+## License & Citation
+
+* **License:** MIT
+
+* **Please cite:**
+
+  * Irwin, J. J., Sterling, T., Mysinger, M. M., Bolstad, E. S., & Coleman, R. G. (2012). ZINC: A free tool to discover chemistry for biology. *Journal of Chemical Information and Modeling*, **52**(7), 1757–1768.
+  * Any downstream tools e.g. RDKit, FAISS
 
 ---
 
-## Clustering Workflow (Summary)
-
-Once you have generated `zinc_smiles.txt`, the clustering workflow proceeds as follows:
-
-1. **Compute physicochemical properties** (e.g., molecular weight, log P) for each SMILES entry (if not already provided).
-2. **Filter compounds** into user‐defined bins (e.g., molecular weight between 200 and 300 Da, log P between 1.0 and 2.0).
-3. **Cluster compounds** within each bin using your chosen clustering algorithm (e.g., k‐means, hierarchical clustering, or fingerprint‐based clustering).
-4. **Analyze clusters** for diversity metrics (e.g., Tanimoto similarity), ensure properties are comparable within each cluster, and prioritize representative scaffolds.
-5. **Select representative compounds** from each cluster for virtual screening or procurement.
-
-> **Note:** Detailed instructions for steps 1–5 (property calculation, clustering parameters, analysis, etc.) are provided in a separate `CLUSTERING_GUIDELINES.md` file (not included here).
-
----
-
-## License and Citation
-
-* This workflow is released under the MIT License.
-* If you use any portion of this pipeline in your publication, please cite:
-
-  * The original ZINC database publication:
-    Irwin, J. J., Sterling, T., Mysinger, M. M., Bolstad, E. S., & Coleman, R. G. (2012). ZINC: A free tool to discover chemistry for biology. *Journal of Chemical Information and Modeling*, **52**(7), 1757–1768.
-  * Any clustering algorithm or property calculation software (e.g., RDKit) used downstream.
-
----
-
-**End of README.md**
+*End of README*
