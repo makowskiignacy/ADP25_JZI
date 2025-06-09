@@ -168,6 +168,14 @@ python search_analogs.py <cluster_dir> <query_smiles> [--top_k 10]
 2. …
 ```
 
+---
+
+**Precomputed Clustering:**  
+If you want to search against a precomputed clustering (based on ~1 million compounds), the results are available here:  
+[🔗 Google Drive – zinc_clusters_1M](https://drive.google.com/drive/folders/15KJIFM9LqTD0i5LmBmkI-H5Pwji7IYlK?usp=share_link)  
+_This archive contains `processed.csv`, `fp_matrix.dat`, `clusters.json`, and `centroids.npy`, ready to be used with `search_analogs.py`._
+
+
 ## License & Citation
 
 * **License:** MIT
